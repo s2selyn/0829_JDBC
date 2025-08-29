@@ -104,7 +104,7 @@ public class SelectRun {
 			rset = stmt.executeQuery(sql);
 			// excuteUpdate는 결과가 정수로 와서 SELECT문의 경우에는 못씀
 			// 결과가 돌아오고 반환타입이 ResultSet이니까 변수로 받아주는 부분 작성(위에 선언해놨음)
-			// 이 결과츨 출력해줄건데 아마도 ..
+			// 이 결과를 출력해줄건데 아마도 ..
 			// System.out.println(rset); // oracle.jdbc.driver.ForwardOnlyResultSet@6ffab045 --> ResultSet 객체의 주소
 			// 이걸 보고싶은건 아닌데용, 실제로 우리가 출력하고 싶은 데이터는 총 12개의 값
 			// ResultSet, 행을 찍고 싶은게 아니라 각 셀에 들어있는 값을 하나하나 출력하고 싶은것, 총 출력해야하는 값은 12개
@@ -200,6 +200,7 @@ public class SelectRun {
 			} catch(SQLException e) {
 				e.printStackTrace();
 			}
+			
 			try {
 				
 				if(stmt != null && !stmt.isClosed()) {
@@ -209,6 +210,7 @@ public class SelectRun {
 			} catch(SQLException e) {
 				e.printStackTrace();
 			}
+			
 			try {
 				
 				if(conn != null && !conn.isClosed()) {
