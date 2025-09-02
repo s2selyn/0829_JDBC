@@ -45,8 +45,8 @@ public class MemberView {
 			switch(menuNo) {
 			case 1 : save(); break;
 			case 2 : findAll(); break;
-			case 3 : break;
-			case 4 : break;
+			case 3 : findById(); break;
+			case 4 : findByKeyword(); break;
 			case 5 : update(); break;
 			case 6 : delete(); break;
 			case 9 : System.out.println("프로그램을 종료합니다."); return;
@@ -80,22 +80,11 @@ public class MemberView {
 		String email = sc.nextLine();
 		
 		// 일단 View에서 할 일은 끝남 -> 컨트롤러로 요청 처리
-		int result = mc.save(userId, userPwd, userName, email);
-		
-		// Controller에서 받은 반환값으로 결과 출력
-		if(result > 0) {
-			System.out.println("회원 가입에 성공했습니다.");
-		} else {
-			System.out.println("회원 가입에 실패했습니다.");
-		}
+		mc.save(userId, userPwd, userName, email);
 		
 	}
 	
 	
-	/**
-	 * 회원 전체 조회 요청 시 Member 테이블에 존재하는 모든 회원의 정보를 출력하는 메소드
-	 * 
-	 */
 	private void findAll() {
 		
 		System.out.println("\n회원 전체 조회");
@@ -115,7 +104,7 @@ public class MemberView {
 			for(Member member : members) {
 				
 				System.out.println("==============================");
-				System.out.println(member.getUserId() + "번 회원의 정보");
+				System.out.println(member.getUserNo() + "번 회원의 정보");
 				System.out.print("아이디 : " + member.getUserId() + ", ");
 				System.out.print("비밀번호 : " + member.getUserPwd() + ", ");
 				System.out.print("이름 : " + member.getUserName() + ", ");

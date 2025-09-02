@@ -26,7 +26,7 @@ public class MemberController {
 	 * @throws : IllegalArgumentException : 잘못된 인자가 전달되면 발생할 수 있음
 	 * 
 	 */
-	public int save(String userId, String userPwd, String userName, String email) {
+	public void save(String userId, String userPwd, String userName, String email) {
 		
 		// 1. 데이터 가공 => 넘어온 인자값이 두 개 이상일 시
 		// 				   어딘가에 담을 것(VO, Map, DTO)
@@ -34,13 +34,10 @@ public class MemberController {
 		// 1) 매개변수 생성자를 호출하여 객체 생성과 동시에 필드값을 대입하는 방법
 		// 2) 기본생성자로 객체를 생성한 뒤 setter 메소드를 호출하는 방법
 		Member member = new Member(userId, userPwd, userName, email);
+		
 		// 컨트롤러의 1절 끝
-		
 		// DAO로 넘기기
-		int result = new MemberDao().save(member);
-		
-		// 2. 요청 처리 후 결과값 반환
-		return result;
+		new MemberDao().save(member);
 		
 	}
 	
