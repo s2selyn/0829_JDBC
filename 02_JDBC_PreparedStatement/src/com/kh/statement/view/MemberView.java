@@ -28,6 +28,20 @@ public class MemberView {
 	 */
 	public void mainMenu() {
 		
+		/*
+		 * 2025 / 09 / 02 오늘의 실습 겸 숙제
+		 * 
+		 * 어제했던 결과물을 -> PreparedStatement 버전으로 변경하기
+		 * 
+		 * 나만의 테이블에 INSERT
+		 * 전체 조회
+		 * 유니크제약조건 걸려있는 컬럼으로 조회
+		 * LIKE키워드 써서 조회하는거
+		 * 컬럼값 수정하는 기능
+		 * 한행 삭제하는 기능
+		 * 
+		 */
+		
 		while(true) {
 			
 			System.out.println(" ---- 회원 관리 프로그램 ---- ");
@@ -80,7 +94,14 @@ public class MemberView {
 		String email = sc.nextLine();
 		
 		// 일단 View에서 할 일은 끝남 -> 컨트롤러로 요청 처리
-		mc.save(userId, userPwd, userName, email);
+		int result = mc.save(userId, userPwd, userName, email);
+		
+		// Cotroller에서 받은 반환값으로 결과 출력
+		if(result > 0) {
+			System.out.println("회원 가입에 성공했습니다.");
+		} else {
+			System.out.println("회원 가입에 실패했습니다.");
+		}
 		
 	}
 	

@@ -26,7 +26,7 @@ public class MemberController {
 	 * @throws : IllegalArgumentException : 잘못된 인자가 전달되면 발생할 수 있음
 	 * 
 	 */
-	public void save(String userId, String userPwd, String userName, String email) {
+	public int save(String userId, String userPwd, String userName, String email) {
 		
 		// 1. 데이터 가공 => 넘어온 인자값이 두 개 이상일 시
 		// 				   어딘가에 담을 것(VO, Map, DTO)
@@ -37,7 +37,10 @@ public class MemberController {
 		
 		// 컨트롤러의 1절 끝
 		// DAO로 넘기기
-		new MemberDao().save(member);
+		int result = new MemberDao().save(member);
+		
+		// 2. 요청 처리 후 결과값 반환
+		return result;
 		
 	}
 	
