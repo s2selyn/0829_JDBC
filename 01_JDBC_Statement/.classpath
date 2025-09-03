@@ -6,11 +6,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="D:/Eclipse(2024-06) Workspace Directory/dev/ojdbc11-23.2.0.0.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="C:/s2selyn/dev/ojdbc11-23.2.0.0.jar">
 		<attributes>
 			<attribute name="module" value="true"/>

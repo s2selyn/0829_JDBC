@@ -40,7 +40,7 @@ public class JDBCTemplate {
 		
 		try {
 			
-			Connection conn = DriverManager.getConnection("jdbc:oracl:thin:@115.90.212.20:10000:XE"
+			Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@115.90.212.20:10000:XE"
 														, "CJ18"
 														, "CJ181234"); // 딸깍 예외처리
 			
