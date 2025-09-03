@@ -1,5 +1,8 @@
 package com.kh.board.model.dao;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -76,7 +79,7 @@ public class BoardDAO {
 						SELECT
 						       BOARD_NO
 						     , BOARD_TITLE
-						     , USER_ID
+						     , USERID
 						     , CREATE_DATE
 						  FROM
 						       BOARD
@@ -107,12 +110,151 @@ public class BoardDAO {
 									  , rset.getDate("CREATE_DATE")
 									  , null);
 				
+				boards.add(board); // 리스트에 담아줌
+				
 			}
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally { // 자원반납 해줘야징
+			
+			JDBCTemplate.close(rset);
+			JDBCTemplate.close(pstmt);
+			
 		}
 		
+		return boards;
+		
+	}
+	
+	// 내용도 상세하게 조회해보자
+	public Board selectBoard(Connection conn, int boardNo) {
+		
+		Board board = null; // 나중에 반환해줄거
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		// 밑반찬 삼총사 준비 끝
+		
+		// 메인반찬
+		// 텍스트 블록 이거 나온지 얼마안됨, 옛날엔 얼마나 불편했을까
+		// 삭제여부 들고감, VO에 넣어줄거니까
+		// 무슨문법 쓸지 모르니까 다 써보자 아까 오라클 썼으니까 이제 ANSI
+		// 컬럼명 YN 이렇게 많이하는데 선생님은 맘에 안드심
+		String sql = """
+						SELECT
+						       BOARD_NO
+						     , BOARD_TITLE
+						     , BOARD_CONTENT
+						     , USERID
+						     , CREATE_DATE
+						     , DELETE_YN
+						  FROM
+						       BOARD
+						  JOIN
+						       MEMBER ON (USERNO = BOARD_WRITER)
+						 WHERE
+						       DELETE_YN = 'N'
+						   AND
+						       BOARD_NO = ?
+					 """;
+		
+// 16:30 싹다 조회해서 VO에 담자??? 그리고 생각해야할일?
+		try {
+			
+			pstmt = conn.prepareStatement(sql); // null로 초기화해둔것에 pstmt 주소값 담아줘야함, 그래야 참조해서 메소드 호출할 수 있음, 안그러면 NullPointerException 발생함
+			pstmt.setInt(1, boardNo); // 바인딩
+			rset = pstmt.executeQuery();
+			if(rset.next()) {
+				
+				board = new Board(rset.getInt("BOARD_NO")
+								, rset.getString("BOARD_TITLE")
+								, rset.getString("BOARD_CONTENT")
+								, rset.getString("USERID")
+								, rset.getDate("CREATE_DATE")
+								, rset.getString("DELETE_YN"));
+				
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			
+			JDBCTemplate.close(rset);
+			JDBCTemplate.close(pstmt);
+			
+		}
+		
+		return board;
+		
+	}
+	
+	public int deleteBoard(Connection conn, int boardNo) {
+		
+		// try with resource 써서 알아서 반납, 커넥션은 앞에가서 반납할거임, 서비스에서는 커넥션이랑 보드넘버 보내야함
+		try(PreparedStatement pstmt = conn.prepareStatement("""
+															   UPDATE
+															          BOARD
+															      SET
+															          DELETE_YN = 'Y'
+															    WHERE
+															          BOARD_NO = ?
+															""")) {
+			pstmt.setInt(1, boardNo);
+			return pstmt.executeUpdate();
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return 0;
+		
+	}
+	
+	// 다음주 맛보기 복붙
+	public void outputHTML(Connection conn) {
+		
+		FileWriter fos = null;
+		BufferedWriter bw = null;
+		
+		try {
+			fos = new FileWriter("Template_BOARD.html");
+			bw = new BufferedWriter(fos);
+			List<Board> boardList = selectBoardList(conn);
+			String html = "<!DOCTYPE html>";
+			html += "<html>";
+			html += "<head><title>게시판이예용</title>";
+			html += "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css'>";
+			html += "<script src='https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js'></script>";
+			html += "<script src='https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js'></script>";
+			html += "<script src='https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js'></script>";
+			html += "</head>";
+			html += "<body>";
+			html += "<h1 style='margin-bottom:30px; text-align:center'>JDBC 게시판 서비스입니다</h1>";
+			html += "<table class='table'>";
+			html += "<tr><th>제목</th><th>작성자</th><th>작성일</th></tr>";
+			for(Board b : boardList) {
+				html += "<tr>";
+				html += "<td>" + b.getBoardTitle() + "</td>";
+				html += "<td>" + b.getBoardWriter() + "</td>";
+				html += "<td>" + b.getCreateDate() + "</td>";
+				html += "</tr>";
+			}
+			html += "</table>";
+			html += "</body>";
+			html += "</html>";
+			
+			bw.write(html);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				bw.close();
+				fos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

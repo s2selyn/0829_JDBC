@@ -27,5 +27,14 @@ public class BoardController {
 		return boards;
 		
 	}
+	
+	public Board selectBoard(int boardNo) {
+		return new BoardService().selectBoard(boardNo); // 그냥 의미상실의 길을 선택해버림, 서비스에게 보드내놔함
+	}
+	
+	// 앞에서 보드넘버 받아와야함
+	public int deleteBoard(int boardNo) {
+		return new BoardService().deleteBoard(boardNo);
+	}
 
 }
