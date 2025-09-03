@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.kh.common.JDBCTemplate;
 import com.kh.statement.model.vo.Plant;
 
 public class PlantDao {
@@ -19,12 +18,13 @@ public class PlantDao {
 	private final String PASSWORD = "CJ181234";
 	
 	// 나만의 테이블에 INSERT
-	public int insertPlant(Plant plant) {
+	public int insertPlant(Connection conn, Plant plant) throws ClassNotFoundException {
 		
 		// 템플릿 만들었음
 		// 스태틱 메소드 전부 임포트 하는 방법이 있는데 클래스명 그냥 씀
-		JDBCTemplate.getConnection();
-		// Connection conn = null; 그럼 이거 생략? 이거 어디서 해야해!!!!
+		// JDBCTemplate.getConnection();
+		// Connection conn = null; 그럼 이거 생략? 이거 어디서 해야해!!!! 응~ 서비스야~
+		// 서비스한테 커넥션 받아와서 쓰는거임
 		
 		PreparedStatement pstmt = null;
 		int result = 0;
@@ -50,11 +50,11 @@ public class PlantDao {
 		
 		try {
 			
-			// 드라이버 등록
-			Class.forName(DRIVER);
+			// 드라이버 등록 -> 템플릿에 뺐음
+			// Class.forName(DRIVER);
 			
-			// 서버 연결
-			conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+			// 서버 연결 -> 이거도 커넥션 받아왔으니까 필요없음
+			// conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);
 			
 			// 수동커밋설정
 			conn.setAutoCommit(false);
@@ -74,8 +74,6 @@ public class PlantDao {
 			}
 			
 			
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {	// 자원반납
@@ -90,6 +88,8 @@ public class PlantDao {
 				e.printStackTrace();
 			}
 			
+			// 이거 이제 여기서 하는거 아님, 서비스에서 해야함
+			/*
 			try {
 				
 				if(conn != null) {
@@ -99,6 +99,7 @@ public class PlantDao {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
+			*/
 			
 		}
 		
