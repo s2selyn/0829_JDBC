@@ -85,13 +85,19 @@ public class MemberDao {
 	 * 
 	 */
 	
+	// 컨트롤러에서 멤버의 주소(매개변수)를 넘겨줌, 받아서 써야함, Member같이 생김
 	public int save(Member member) {
 		
+		// 나중에 자원반납 finally블록에서 해줄거임
 		// 0) 필요한 변수를 먼저 선언 및 null값으로 초기화
 		Connection conn = null; // 접속할 DB서버와의 연결정보를 담는 객체
 		Statement stmt = null; // SQL문 실행 후 결과를 받기 위한 객체
+		// import
+		
+		// 생각! 이번에 실행할 SQL문 INSERT임, 결과가 어떻게 오는가? --> Updated Rows, 행 카운트 해서 옴, 이걸 나중에 돌려주러 가야함, 받을 정수(int) 받을 변수도 하나 선언
 		int result = 0; // DML 수행 후 결과를 받기 위한 변수
 		
+		// 그다음 생각 --> Statement는 SQL문 어떻게 써야하지?
 		// SQL문 (정적인 형태)
 		/*
 		 * INSERT
@@ -107,6 +113,10 @@ public class MemberDao {
 		 *      , SYSDATE
 		 *        )
 		 * 
+		 * 이런 모양의 SQL문을 만들어야함, 말도안되게 어렵진않음!
+		 * SELECT는 무궁무진하게 나올 수 있는데 INSERT는 맨날 이렇게 쓰면 끝, 끝날때까지 이수준
+		 * 한번만 제대로 해놓으면됨(INSERT UPDATE... DML 삼총사), 이대로 쭉 가는거니까
+		 * 
 		 */
 		String sql = "INSERT "
 					 + "INTO "
@@ -120,44 +130,71 @@ public class MemberDao {
        				   + ", '" + member.getEmail() + "'"
        				   + ", SYSDATE"
        				     + ")";
-		// System.out.println(sql);
+		// 사용자가 입력한 아이디값은 멤버의 필드에 있음, 주소를 가져왔는데 그냥 멤버의 필드에 접근할 수 없음
+		// 멤버의 필드값을 가져오려면 getter 써야함, 멤버의 아이디에 있으니까 getUserId
+		// 문자 데이터 앞뒤로 따옴표 달기
+		// System.out.println(sql); Statement를 사용할때는 문자열이니까 출력문으로 찍어볼 수 있음, INSERT 문을 작성할 줄 알아야겠지만 미리 확인해볼 수 있다는 장점이 있음
+		// 메인 메소드에서 실행해보고 실행될 수 있는 인서트문인지 확인 --> 이걸 완성된 형태, 정적인 형태라고 함
 		// 주의) SQL문을 문법적으로 올바르게 작성하지 못했다면
 		// SQLSyntaxErrorException이 발생함
 		
 		try {
 			
-			// 1) JDBC Driver등록
-			Class.forName("oracle.jdbc.driver.OracleDriver");
+			// 1) JDBC Driver 등록
+			// 메소드 호출해서 등록, 패키지 경로부터 클래스명까지 문자열로 전달(우리는 고정)
+			Class.forName("oracle.jdbc.driver.OracleDriver"); // CE발생 --> try-catch
 			// 1. 오타가 날 경우
 			// 2. 프로젝트에 라이브러리를 추가 하지않아서 진짜로 클래스를 못찾는 경우
 			// -> ClassNotFoundException 발생
+			
+			// 라이브러리 추가함
 			
 			// 2) Connection 객체 생성 (DB와 연결 -> URL, 사용자이름, 비밀번호)
 			conn = DriverManager.getConnection("jdbc:oracle:thin:@115.90.212.20:10000:XE"
 											 , "CJ18"
 											 , "CJ181234");
-			// 요런 느낌 new Coneection("jdbc:oracle머시기", "CJ18", "CJ181234")
+			// 메소드 호출하면 커넥션을 돌려받음
+			// URL(uniform resource location)은 내가 어떤 DBMS를 쓰느냐에 따라 다 다름, 한 여덟개?, 내가 지금 자원을 얻고자하는 연결하고자 하는 위치
+			// DB 접속할 때 항상 사용자명이 있어야함
+			// 요런 느낌 new Connection("jdbc:oracle머시기", "CJ18", "CJ181234") (객체 생성으로 생각 --> 생성하고 끝나면 안됨, 계속 쓰려고 만들었음, 변수에 담아줌, 커넥션 타입의 변수 만들어뒀음, 변수에 담아둬야 메소드 호출할 수 있음)
 			// 1. URL을 잘못 적었을 수 있음
 			// 2. 사용자 계정명을 잘못 적었을 수 있음
 			// 3. 비밀번호를 잘못 적었을 수 있음
 			// 4. 서버가 안 켜져(열려)있을 수 있음
 			// 5. 접속 권한을 부여받지 못했을 수 있음
-			// SQLExcecption이 발생
+			// 밖에 나가는거임, 인터넷 세상에 있는 다른 호스트로 내가 연결을 요청하는것, 별의 별 문제가 다 일어날 수 있음 --> 뭉뚱그려서 SQLException
+			// SQLExcecption이 발생, 왜일어났는지는 12345 읽어보면서 내가 뭐 잘못했는지 찾아야함
+			// CE발생 --> 예외처리(catch 추가)
 			
 			// AutoCommit 끄기
+			// 이 친구 편하니까 얘가 켜져있으면 우리가 직접 트랜잭션을 제어할 일이 없음, 직접 해보기 위해서 오토커밋 끔, 실제로 나중에는 이거 다 켜놓고 할거임
+			// 지금은 공부하는거고 이 단계에서 트랜잭션 처리 해야하는구나 알아야하니까 끄고 함
+			// 커넥션 객체 가지고 메소드 호출하면 끌 수 있음
 			conn.setAutoCommit(false);
 			
 			// 3) Statement 객체 생성
-			stmt = conn.createStatement(); // new Statement(conn); 요런느낌
+			stmt = conn.createStatement(); // new Statement(conn); 요런느낌, stmt 객체를 커넥션으로 만드는데 생성자와 매개변수 전달할거 넣는거
+			// 얘 올리기가 끝 아님 안알아가게 변수 미리 선언해둔것(Statement stmt)에 담음
 			
+			// Statement 만든것으로 실행
 			// 4, 5) DB에 완성된 SQL문을 전달하면서 실행도 하고 결과도 받고
+			// 이번에 보내는건 INSERT문, Statement 객체의 업데이트 메소드 호출하면서 인자로 실행할 SQL문 전달
+			// 아까 적어둔 SQL 구문에서 SyntaxErrorException 발생할 수 있음
 			result = stmt.executeUpdate(sql);
 			// INSERT 시 값에 문제가 있을 수 있음
 			// 자료형이 맞지 않음
 			// 제약조건에 위배
 			// 데이터의 크기가 컬럼의 크기보다 큼
 			// SQLException이 발생
+			// 뭐가 문제였는지는 뜨는거 보고 알아서 고쳐야함
+			// 사실 앞에서 걸러서 왔어야함, 유저 아이디 15바이트니까 length 봐서 15 넘으면 안되게 되돌린다든가(그것까지 하면 너무 그러니까 숙제로)
+			// 아무튼 이런 문제가 일어나지 않는다면 결과가 수행될것이다!
 			
+			// 성공하면 int형의 1이 돌아옴, 그게 아니라면 0이 오니까
+			// 이거 받아야함, 돌려줘야하니까, 이것도 변수 선언해뒀음
+			// 오늘은 트랜잭션 처리 수동으로 하기로 했음
+			// DML이니까 수행되었으면 트랜잭션 생김(실패했으면 볼거없음)
+			// 단일 트랜잭션이니까 성공했을때는 트랜잭션 처리 해줘야함
 			// 6) 트랜잭션 처리
 			if(result > 0) {
 				conn.commit();
@@ -169,8 +206,9 @@ public class MemberDao {
 			e.printStackTrace();
 		} finally {
 			
+			// JDBC용 객체는 할일이 다 끝남, 외부랑 묶인 애들이라 가비지 컬렉터가 안가져감, 직접 반납을 해야함
 			// 7) 사용이 모두 끝난 JDBC용객체 자원반납
-			// 생성된 순서의 역순으로 close() 호출
+			// 생성된 순서의 역순으로 close() 호출(항상 생각)
 			try {
 				
 				if(stmt != null) {
@@ -194,7 +232,7 @@ public class MemberDao {
 		}
 		
 		// 8) 결과반환
-		return result;
+		return result; // 메소드 반환형 int로 수정하고 컨트롤러로 돌아감
 		
 	}
 	

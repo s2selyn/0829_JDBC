@@ -75,8 +75,8 @@ public class MemberView {
 			switch(menuNo) {
 			case 1 : save(); break; // 회원 추가할래요 했으면 뷰에서는? 웹사이트에서 내가 회원 가입해야지 하고 누루면 뭐가 나와야함? 아이디 비밀번호 입력하세요 정보를 입력할 수 있는 화면이 나와야함
 			case 2 : findAll(); break;
-			case 3 : break;
-			case 4 : break;
+			case 3 : findById(); break;
+			case 4 : findByKeyword(); break;
 			case 5 : update(); break;
 			case 6 : delete(); break;
 			case 9 : System.out.println("프로그램을 종료합니다."); return; // 종료를 입력했을 때는 return으로 메인메소드로 보냄
@@ -119,12 +119,24 @@ public class MemberView {
 		// 앞에서 하던거에 JDBC 붙인거
 		int result = mc.save(userId, userPwd, userName, email);
 		// 컨트롤러 ㄱㄱ
+		// 저쪽에서 뭔일이 일어나는지 모름, 근데 정수가 오긴 왔음, 온거가지고 결과를 출력해줘야함
+		// 사용자가 이용하는거니까 됐으면 됐다, 안됐으면 안됐다 보여줘야함
+		// 뭐가 왔는지 모르니까 일단 변수에 담아둠, int에 왔으니까 int에 담음
 		
+		// 돌아온 결과로 성공실패 출력해줘야함(그게 얘 일이지)
+		// 성공실패 보여줄 내용이 다름 --> 경우가 두개니까 조건 if
+		// 조건식을 만들 때 뭘 봐야 성공실패를 알수있음? result
 		// Controller에서 받은 반환값으로 결과 출력
-		if(result > 0) {
+		if(result > 0) { // result가 0보다 크면 성공한거
+			
+			// if 블록은 성공했을때 가는거
 			System.out.println("회원 가입에 성공했습니다.");
+			
 		} else {
+			
+			// else블록은 실패했을때 가는거
 			System.out.println("회원 가입에 실패했습니다.");
+			
 		}
 		
 	}
@@ -136,9 +148,17 @@ public class MemberView {
 	 */
 	private void findAll() {
 		
+		// 전체조회 하는데 뷰에서 왔다갔다 할 순 없음, 나중에 값을 반환받아서 출력해줘야함
+		// 문제가 생길 때 고치는 법을 알아야함, 왜안되는지도 알아야하고
+		// 선생님이 알려주시는거 듣고 되면 넘어가면 안됨, 이제 되는건 별로 중요하지 않고
+		// 뭐가 문제인지 알고 고치는법을 알면 나혼자도 할수있음
+		
 		System.out.println("\n회원 전체 조회");
 		
+		// 회원 멤버 테이블에 있는 모든 데이터를 출력해줄건데 뷰 입장에서 여기서 해줄수없음
+		// 컨트롤러한테, 중간다리한테 데이터 좀 달라고 해야함 --> 바로 컨트롤러에게 요청, 회원들의 데이터값 요청 이렇게 하자
 		// 데이터 좀.. Controller에게 회원들의 데이터 값 요청
+		// 요청하려면 메소드 호출, 보낼건 딱히 없고 그냥 해달라고 하자 --> 컨트롤러로 넘어감
 		List<Member> members = mc.findAll();
 		
 		// 뷰에서 2절
@@ -268,7 +288,7 @@ public class MemberView {
 		System.out.print("비밀번호를 입력해주세요 > ");
 		String userPwd = sc.nextLine();
 		
-		System.out.print("새 비밀번호를 입력해주세요 >");
+		System.out.print("새 비밀번호를 입력해주세요 > ");
 		String newPassword = sc.nextLine();
 		
 		// 3개 받았으니 뷰는 이제 끝남, 이 3개를 컨트롤러에 넘겨줘야함
