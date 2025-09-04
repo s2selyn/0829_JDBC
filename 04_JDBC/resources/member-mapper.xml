@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+
+	<comment>MEMBER SQL</comment>
+	
+	<entry key="A">
+		B
+	</entry>
+	
+	<entry key="save">
+		INSERT
+		  INTO
+		       MEMBER
+		VALUES
+		       (
+		       SEQ_USERNO.NEXTVAL
+		     , ?
+		     , ?
+		     , ?
+		     , ?
+		     , SYSDATE
+		       )
+	</entry>
+	
+	<entry key="findAll">
+		SELECT
+		       USERNO
+		     , USERID
+		     , USERPWD
+		     , USERNAME
+		     , EMAIL
+		     , ENROLLDATE
+		  FROM
+		       MEMBER
+		 ORDER
+		    BY
+		       ENROLLDATE DESC
+	</entry>
+	
+	<entry key="findById">
+		SELECT
+		       USERNO
+		     , USERID
+		     , USERPWD
+		     , USERNAME
+		     , EMAIL
+		     , ENROLLDATE
+		  FROM
+		       MEMBER
+		 WHERE
+		       USERID = ?	
+	</entry>
+	
+	<entry key="findByKeyword">
+		SELECT
+		       USERNO
+		     , USERID
+		     , USERPWD
+		     , USERNAME
+		     , EMAIL
+		     , ENROLLDATE
+		  FROM
+		       MEMBER
+		 WHERE
+		       USERNAME LIKE '%'||?||'%'
+	</entry>
+	
+	<entry key="update">
+		UPDATE
+		       MEMBER
+		   SET
+		       USERPWD = ?
+		 WHERE
+		       USERID = ?
+		   AND
+		       USERPWD = ?
+	</entry>
+	
+	<entry key="delete">
+		DELETE
+		  FROM
+		       MEMBER
+		 WHERE
+		       USERID = ?
+		   AND
+		       USERPWD = ?
+	</entry>
+	
+</properties>
