@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.kh.statement.controller.PlantController;
-import com.kh.statement.model.dao.PlantDao;
 import com.kh.statement.model.vo.Plant;
 
 public class PlantView {

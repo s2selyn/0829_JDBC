@@ -18,7 +18,7 @@ public class PlantDao {
 	private final String PASSWORD = "CJ181234";
 	
 	// 나만의 테이블에 INSERT
-	public int insertPlant(Connection conn, Plant plant) throws ClassNotFoundException {
+	public int insertPlant(Connection conn, Plant plant) {
 		
 		// 템플릿 만들었음
 		// 스태틱 메소드 전부 임포트 하는 방법이 있는데 클래스명 그냥 씀

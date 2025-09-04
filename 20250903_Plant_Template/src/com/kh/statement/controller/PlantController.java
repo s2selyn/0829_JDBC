@@ -15,6 +15,7 @@ public class PlantController {
 	public int insertPlant(String plantName, String plantColor) {
 		
 		Plant plant = new Plant(plantName, plantColor);
+		
 		int result = new PlantService().insertPlant(plant);
 		
 		return result;
