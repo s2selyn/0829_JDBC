@@ -221,5 +221,45 @@ public class EmployeeDAO {
 		return employees;
 		
 	}
+	
+	// 사번으로 찾기 메소드
+	// 서비스에서 커넥션과 키워드를 준다, 매개변수로 받아야함, 나중에 조회된 결과 돌려줘야함
+	public Employee findById(Connection conn, int idKeyword) {
+		
+		// 필요한 변수 세팅 : pstmt, rset, employee
+		PreparedStatement pstmt = null;
+		ResultSet rset = null;
+		Employee employee = null;
+		
+		// SQL 준비하는거 까먹음 ㅎ
+		String sql = prop.getProperty("findById");
+		
+		try {
+			
+			// 커넥션으로 pstmt 생성
+			pstmt = conn.prepareStatement(sql);
+			
+			// SQL 실행하고 결과 받기
+			rset = pstmt.executeQuery();
+			
+			// 받아온 결과 가공
+			while(rset.next()) {
+			
+			employee = new Employee(rset.getString("EMP_ID")
+								  , rset.getString("EMP_NAME")
+								  , rset.getInt("SALARY")
+								  , rset.getString("DEPT_TITLE")
+								  , rset.getString("JOB_NAME"));
+			
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		// 반환
+		return employee;
+		
+	}
 
 }

@@ -65,5 +65,24 @@
 		    BY
 		       HIRE_DATE DESC
 	</entry>
+	
+	<entry key="findById">
+		SELECT
+		       EMP_ID
+		     , EMP_NAME
+		     , SALARY
+		     , DEPT_TITLE
+		     , JOB_NAME
+		  FROM
+		       EMPLOYEE E
+		     , JOB J
+		     , DEPARTMENT D
+		 WHERE
+		       E.JOB_CODE = J.JOB_CODE
+		   AND
+		       E.DEPT_CODE = D.DEPT_ID(+)
+		   AND
+		       E.EMP_ID = ?;
+	</entry>
 
 </properties>

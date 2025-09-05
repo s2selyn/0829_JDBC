@@ -78,5 +78,17 @@ public class EmployeeService {
 		return employees;
 		
 	}
+	
+	// 사번으로 검색, DAO 한테 객체 하나 받음, 매개변수 있음
+	public Employee findById(int idKeyword) {
+		
+		// DAO 생성해서 메소드 호출하면서 인자 넘겨주기, 커넥션이랑 키워드
+		Employee employee = new EmployeeDAO().findById(conn, idKeyword);
+		// 결과는 DAO가 rset을 가공해서 객체에 담은것
+		
+		// 결과 반환
+		return employee;
+		
+	}
 
 }

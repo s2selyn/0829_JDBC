@@ -44,7 +44,7 @@ public class EmployeeView {
 			case 1 : findAll(); break;
 			case 2 : findByDept(); break;
 			case 3 : findByJob(); break;
-			case 4 : break;
+			case 4 : findById(); break;
 			case 5 : break;
 			case 6 : break;
 			case 7 : break;
@@ -140,7 +140,7 @@ public class EmployeeView {
 			// 뻥이 아니면 다 출력
 			for(int i = 0; i < result.size(); i++) {
 				
-				System.out.println("입력하신 직급과 같은 부서의 사람들입니다.");
+				System.out.println("입력하신 직급과 같은 직급의 사람들입니다.");
 				System.out.println((i + 1) + "번 째 사원");
 				System.out.println(result.get(i));
 				
@@ -153,6 +153,30 @@ public class EmployeeView {
 			// 아 근데 없는 부서면 DAO까지 갈 필요 없지 않나? 이거 검증은 어케하더라? 아마도 서비스인가?
 			// 일단 뷰에서 하는건 아닌게 확실함
 			
+		}
+		
+	}
+	
+	// 4. 사번 입력받아서 사원 상세(모든 컬럼 값) 조회
+	private void findById() {
+		
+		// ID 입력받기
+		System.out.print("상세 정보를 조회할 사번을 입력해보세용 > ");
+		int idKeyword = sc.nextInt();
+		sc.nextLine();
+		
+		// 입력받은거 전달하면서 컨트롤러의 메소드 호출
+		Employee result = ec.findById(idKeyword);
+		// 결과 받아오기, 이건 하나만 온다 사번은 PK임
+		
+		// 받아온 결과에 따라서 출력
+		if(result != null) {
+			
+			System.out.println("사번으로 조회하신 분 나왔습니다.");
+			System.out.println(result);
+			
+		} else {
+			System.out.println("그런사람은 없는디요");
 		}
 		
 	}

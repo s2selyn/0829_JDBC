@@ -47,5 +47,17 @@ public class EmployeeController {
 		// 리스트를 뷰에게 돌려줌
 		return employees;
 	}
+	
+	// 사번으로 찾기, 매개변수 있음, PK니까 객체 하나로 돌려줌
+	public Employee findById(int idKeyword) {
+		
+		// 서비스 객체 생성해서 메소드 호출, 인자 전달
+		Employee employee = new EmployeeService().findById(idKeyword);
+		// 결과는 객체 하나가 옴
+		
+		// 하나 온거 뷰한테 돌려줌
+		return employee;
+		
+	}
 
 }
