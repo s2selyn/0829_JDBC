@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boardMapper">
+
+	<sql id="boardColumn">
+		SELECT
+		       BOARD_NO boardNo
+		     , BOARD_TITLE boardTitle
+		     , BOARD_CONTENT boardContent
+		     , USERID boardWriter
+		     , CREATE_DATE createDate
+		  FROM
+		       BOARD
+		  JOIN
+		       MEMBER ON (BOARD_WRITER = USERNO)
+		 WHERE
+		       DELETE_YN = 'N'
+	</sql>
+
+	<!-- select두개 작업할건데 구분할 id 속성이 필요함, 각 id를 메소드명으로 지어주자 컨트롤러부터 DAO까지 똑같은거 쓰고있으니까 헷갈릴일이없음 -->
+	<select id="selectBoardList"
+			resultType="board">
+		<include refid="boardColumn" />
+		 ORDER
+		    BY
+		       BOARD_NO DESC
+	</select>
+	<!-- 오라클 구문이었던거 ansi로만 바꾼거고 SQL은 바뀐게 없음, select는 반드시 resultType/resultMap이 있어야함, 이번에는 딱히 복잡한 SQL문 아니니까 resultType
+	아까 별칭 달아둔 board 모양으로 돌아갈거임, 파라미터는 딱히 없음 쓸거다씀
+	-->
+	
+	<!-- int형은 Integer를 의미하게 됨(래퍼클래스), _int로 작성하라고 공식문서에 써져있음, SELECT문이므로 반환형 지정, typeAlias에 적어둔 board -->
+	<select id="selectBoard"
+			parameterType="_int"
+			resultType="board">
+		<include refid="boardColumn" />
+		   AND
+		       BOARD_NO = #{boardNo}
+	</select>
+	
+	<!-- SELECT문의 중복부분에서 나쁜 냄새가 남
+	계속 똑같은걸 작성해야함, 중복을 없앨 수 있는 방법은? 몰?루 공식문서 ㄱㄱ 다른 구문에서 사용하기 위한 sql 조각 -> 위에 올라가서 작성
+	보통 sql 조각이랑 resultMap도 위쪽에 빼놓는 편
+	-->
+
+</mapper>

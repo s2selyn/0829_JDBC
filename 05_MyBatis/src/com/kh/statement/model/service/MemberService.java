@@ -6,6 +6,7 @@ import org.apache.ibatis.session.SqlSession;
 
 import com.kh.common.Template;
 import com.kh.statement.model.dao.MemberDao;
+import com.kh.statement.model.dto.PasswordDTO;
 import com.kh.statement.model.vo.Member;
 
 public class MemberService { // 얘 또 뜯어고치기
@@ -69,6 +70,83 @@ public class MemberService { // 얘 또 뜯어고치기
 		
 		// 결과(List의 주소값) 반환
 		return members;
+		
+	}
+	
+	// findById, id를 가지고 조회를 하기 때문에 나중에 Memeber 반환, 앞에서는 사용자가 입력한 문자열값을 받아옴
+	public Member findById(String userId) {
+		
+		// 이제 커넥션의 역할을 하는 SqlSession타입의 객체를 하나 받아옴
+		SqlSession session = Template.getSqlSession();
+		
+		// SqlSession은 그냥 세션이라고 하면 안됨, Http, WebSocket 등 엄청 많이 씀, 그냥 세션이라고 하면 구분이 안되니까 명확하게 구분해야함
+		
+		// JDBC의 커넥션 역할을 대신하는 SqlSession 객체를 받아왔음, 그다음에 DAO에 가서 조회해오는게 목적
+		Member member = memberDao.findById(session, userId); // DAO의 메소드를 호출하면서 SqlSession(커넥션의 역할) session을 넘겨주면서 SELECT문을 보낼 때 조건으로 사용할 userId도 넘겨줌
+		// DAO 갔다오면 멤버가온다, 서비스에서는 이걸 리턴해줘야함
+		
+		// 리턴하기 전에 사용이 끝난 세션을 닫아줘야함
+		session.close();
+		
+		return member;
+		
+	}
+	
+	// 키워드는 조회결과가 포함되어있는거 찾는거라서 여러 행으로 나올 수 있음, 여러행이 나오는거니까 나중에 반환할때는 List + 제네릭
+	// 앞에서 문자열 형태의 키워드를 받아옴
+	public List<Member> findByKeyword(String keyword) {
+		
+		// 서비스에서 가장 첫번째 해야할 일은 커넥션이지만 SqlSession이 대체함
+		SqlSession session = Template.getSqlSession();
+		
+		// DAO의 메소드를 호출하면서 sql세션과 사용자가 입력한 스트링값을 넘겨줌
+		// 또 중복이 있는데 다음에 하고 당분간은 마이바티스 익히는데 주력
+		List<Member> members = memberDao.findByKeyword(session, keyword);
+		// DAO 갔다오면 리스트가 돌아옴
+		
+		session.close();
+		
+		return members;
+		
+	}
+	
+	// update, delete
+	public int update(PasswordDTO pd) {
+		
+		// 사실 서비스단은 별 차이 없고, 타입만 바뀜
+// 컨트롤러도?
+// 지금 뭐함? 마이바티스, 마이바티스는 영속성 프레임워크
+// 영속성은 영구적으로 진행시키는 작업, 이걸 위해서 DB에 CRUD해서 집어넣고 조회하고
+// 영속성 프레임워크는 DB에 CRUD 하는거 도와주는거, 원래 DAO가 하던 작업이니 DAO만 바뀌고 있음
+// 지금은 한줄 쓰는거 아리까리하지만 JDBC 하는것처럼 주구장창 잡고있으면 되겠지, 이게 뭐하는건지 무슨작업인지 왜써야하지 쓰면뭐가좋지 생각해야함, 쓰는건 외워서 쓰는거고
+// 이것도 또 바뀐다^^! 치고 돌아가는게 중요한게 아님
+		SqlSession session = Template.getSqlSession();
+		
+		int result = memberDao.update(session, pd);
+		
+		if(result > 0) {
+			session.commit();
+		}
+		
+		session.close();
+		
+		return result;
+		
+	}
+	
+	public int delete(Member member) {
+		
+		SqlSession session = Template.getSqlSession();
+		
+		int result = memberDao.delete(session, member);
+		
+		if(result > 0) {
+			session.commit();
+		}
+		
+		session.close();
+		
+		return result;
 		
 	}
 

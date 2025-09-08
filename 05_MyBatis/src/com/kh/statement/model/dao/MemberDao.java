@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
 
+import com.kh.statement.model.dto.PasswordDTO;
 import com.kh.statement.model.vo.Member;
 
 public class MemberDao { // 얘 뜯어고치기
@@ -68,7 +69,6 @@ public class MemberDao { // 얘 뜯어고치기
 		
 	}
 	
-	// 
 	public List<Member> findAll(SqlSession session) {
 		
 // SqlSession 타입의 객체로 해결 가능
@@ -86,9 +86,91 @@ public class MemberDao { // 얘 뜯어고치기
 		// selectList는 반환타입이 List
 		
 // 12:35 이것도 그냥 반환하면 되니까 한줄로 쓰기 가능
+		// 조회결과가 존재하지 않는다면 빈 리스트를 반환
 		return session.selectList("memberMapper.findAll");
 		// 서비스로 돌아감
 		
+		/*
+		 * 얘는 조회 결과가 없으면 뭘 반환할까?
+		 * 만들고 나서 제일 좋은 건 모르는것에 대해서 고민하기보다는 결과를 확인하고 거꾸로 돌아감
+		 * 머리붙잡고 고민하는것보다는 결과를 보고 거짓말을 안하니까 어떻게 되어야 이게 나오는지 확인해야함
+		 * 리스트가 오는데 비어있는게 옴, null이 올 수는 없음(이러면 NullPointerException), List는 100% 만들어져서 옴, 비어있는지 아닌지는 메소드로 판별
+		 * 
+		 * 어차피 ???
+		 * 나만 그런게 아니라.. 마이바티스를 사용하는 사람들은 모두 똑같은 생각을 하고 개발을 하겠지
+		 * 나름 강의실 안에서의 코딩컨벤션을 만드는 과정을 하고 있음
+		 * 프로젝트 기간이 되면 이 반에 있는 불특정 다수와 작업을 해야하는데, 선생님 입장에서 제일 먼저 시켜야 하는건 각 인원의 코드 스타일을 통일시켜야 서로 알아볼 수 있고 하다말아도 그다음에 뭐할지 알아볼 수 있음
+		 * 다 똑같이 같은 스타일로 작업해야하니까
+		 * 내맘대로 해도 돌아가긴 하겠지만, 그렇게 했을때의 팀 전체의 생산성, 반 전체에 대한 생산성은 글쎄?
+		 * 선생님이 작성하는 코드는 이유가 있으니 그때그때의 양식은 잘 따라가보자, 한꺼번에 설명하기는 어려운 부분이 있고 앞으로 알려주실테니 웬만하면 코드작성 스타일은 맞추자
+		 * 메소드 안의 비즈니스 로직은 맘대로 해도 되지만 전체적인 구조와 틀 스타일은 우리반 안에서의 일하는 방식으로 맞추자
+		 * 
+		 * 아직 전체 자바개발자들의 약속이 많이 남음, 지금은 갸우뚱 할 수 있지만 천천히 가보자
+		 * 
+		 */
+		
 	}
+	
+	// 서비스에서 불러야하니까 접근제한자는 public, 한 행의 조회결과를 보내야하니까 Member
+	public Member findById(SqlSession session, String userId) {
+		
+		// 계속 반복해서 치면서 방법이 없으니 이렇게 쓰고있음
+		
+		// DAO로 넘어오면 무슨 작업을 해야함? DB에 접근하는건 Connection이 하는거고
+		// DAO는 SQL문 실행하고 결과받아오는것만 해야함, 마이바티스 하면서 진짜 이부분만 남겼음
+		
+		// SQL 실행은 stmt가 했음, 그 역할을 SqlSession이 겸함
+		// SqlSession이 가지고 있는 메소드를 호출해서 해야함, SELECT문을 할거니까 select, 내가 원하는 SQL문을 실행할 때 결과가 몇개 돌아오는지 생각 --> PK로 조회하는거니까 한 행이 온다
+		// selectOne이 두개있음, 인자 하나받는 친구는 sql문 수행할 때 따로 전달할게 없는것, 인자 두개받는 친구는 sql문 수행할 때 전달할 게 추가로 있는것
+// 지금은 두개를 보내야함, 앞에는 어느 매퍼의 어떤 sql을 실행할건지 적음(memberMapper, id는 메소드명으로 할것임), 뒤에는 매개변수로 받아온 문자열 userId
+		// Member member = session.selectOne("memberMapper.findById", userId); // 작성해놓고 매퍼 ㄱㄱ
+		// 매퍼에서 작성하고 돌아오면 Member 타입으로 돌아옴
+		
+		// 돌려줄 때 member 주소를 쓰면 되는데 두줄로 쓸 필요가 없음
+		// 조회결과가 존재하지 않다면 null 반환(공식문서에 다 써있음)
+		return session.selectOne("memberMapper.findById", userId);
+		
+		// 개발이라는게 순수하게 코드작성만 놓고 보면 코드작성이 제일 쉬움, 개발이라는 파트가 엄청 큰데 코드쓰는게 굉장히 작다
+		// 이걸위해 문법, 속성, 객체지향, 기술문서읽기 등 학습량, 절차가 방대한데 이것만 끝내면 코드작성은 제일 빨리 끝나는 금방하는, 할거없는 작업
+		// 이걸 위해 공부하는 시간이 오래걸림, 차라리 SQL쓰는게 시간 더 오래걸릴지도
+		
+		/*
+		 * 컬럼하나 빼먹어서 ResultSet에 포함이 안되었으니 매핑이 안됨
+		 * 
+		 * 지금은 성공했을때를 가정함, 실패했을때는? 없는 아이디를 조회했다면?
+		 * 존재하지 않는 아이디입니다 하고 출력되는데.. 없는거 조회하면 어떻게 되는거임?
+		 * member == null 이면 이게 출력됨, 얘는 어디서 온애임? 얘는 컨트롤러, 근데 여기서 만들어진것도 아니고 서비스에서 왔는데 서비스도 지가만든게 아니라 DAO에서 받아온거임
+		 * 결론적으로 SELECT 했는데 ResultSet이 왔는데 0 행이 온것임, 0행이면 null을 돌려준다는거겠지?
+		 * null이 돌아왔으니까 뷰에서 이렇게 출력했겠지, 결론적으로 이 메소드 호출 결과가 null이어야함
+		 * 코드짜는기능을 배웠으면 이제 생각해야 할일
+		 * 계획세우고 코드짜고 동작되는걸 확인하면 왜이렇게 나왔지를 돌아가서 공부해야함, 컴퓨터는 거짓말을 하지않으니까 얘가 동작하는대로 내가 이해해야함
+		 * 
+		 */
+		
+	}
+	
+	// 어차피 하나의 메소드가 하나의 SQL밖에 못부름, 앞에서 한 구조가 똑같음 계속
+	public List<Member> findByKeyword(SqlSession session, String keyword) {
+		
+		// 이제 여기서 DAO 왔으니까 뭐함? SQL 실행해야함, 누구가지고? SqlSession 객체
+		// 메소드 호출해서, 결과가 여러 행 있을 수 있으니까 selectList, 2번 불러야함, SQL문 실행할 때 키워드를 넘겨줘야함
+		return session.selectList("memberMapper.findByKeyword", keyword); // 첫번째 인자로 어떤 매퍼의? 매퍼파일의 네임스페이스 속성값, 이러면 매퍼까지 감, 매퍼까지 갔는데 select문이 많음, 각 셀렉문 식별하는 방법은 id, 안정했지만 어차피 메소드명 할거임
+		// keyword는 매퍼 안의 SQL문 돌릴 때 필요한 값이니까 넘겨줌
+		// 이렇게 하면 나중에 뭐가 반환됨? 멤버 주소값을 담고 있는 리스트가 반환되거나, 조회된 결과가 없으면 빈 리스트
+		
+	}
+	
+	public int update(SqlSession session, PasswordDTO pd) {
+		
+// ...?
+		return session.update("memberMapper.update", pd);
+		
+	}
+	
+	public int delete(SqlSession session, Member member) {
+		return session.delete("memberMapper.delete", member);
+	}
+	
+// 16:03 요약
 	
 }

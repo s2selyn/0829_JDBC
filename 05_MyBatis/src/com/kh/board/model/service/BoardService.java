@@ -3,11 +3,15 @@ package com.kh.board.model.service;
 import java.sql.Connection;
 import java.util.List;
 
+import org.apache.ibatis.session.SqlSession;
+
 import com.kh.board.model.dao.BoardDAO;
+import com.kh.board.model.dao.BoardRepository;
 import com.kh.board.model.dto.BoardDTO;
 import com.kh.board.model.vo.Board;
 import com.kh.common.JDBCTemplate;
-import com.kh.statement.model.dao.MemberDao;
+import com.kh.common.Template;
+import com.kh.statement.model.service.MemberService;
 import com.kh.statement.model.vo.Member;
 
 public class BoardService {
@@ -46,9 +50,8 @@ public class BoardService {
 		// 그냥 해달라고 하면 못찾음, 커넥션 줘야함, 입력받은 아이디값이나 bd를 넘김, bd에서 아이디만 빼서 줘도 되고
 		// 이러면 안됨!!!!
 		// 왜? 아이디값으로 회원을 조회하는 기능은 이미 멤버에 만들어놓음, 이거 똑같이 쓸거아니에요. 똑같은 중복코드를 또 만드는게 됨, 만들어놓은거 써
-		Member member = new MemberDao().findById(conn, bd.getBoardWriter());
-		
-// 15:00
+		// Member member = new MemberDao().findById(conn, bd.getBoardWriter());
+		Member member = new MemberService().findById(bd.getBoardWriter());
 		
 		if(member != null) { // 사용자가 입력한 아이디가 DB에 있다는 뜻
 			
@@ -86,6 +89,7 @@ public class BoardService {
 	
 	public List<Board> selectBoardList() { // 다 정해져있음
 		
+		/*
 		// 리스트는 서비스한테 없음, 얘도 DAO야~~~
 		// 근데 얘는 줄게있음, 그냥 주면 안됨
 		List<Board> boards = new BoardDAO().selectBoardList(conn); // 갔다오면 List올것임
@@ -98,11 +102,24 @@ public class BoardService {
 		
 		// 서비스 입장에서도 이 리스트를 돌려줘야함
 		return boards;
+		*/
+		
+		// 마이바티스 사용할 친구들은 DAO 말고 Repository로 해보자
+		// 제일 먼저 sqlsession 받아와야함
+		SqlSession session = Template.getSqlSession();
+		
+// repository의 메소드를 호출해준다, 호출하면서 sqlsession...dwdfwdfasrgaetrer
+		List<Board> boards = new BoardRepository().selectBoardList(session);
+		
+		session.close();
+		
+		return boards;
 		
 	}
 	
 	public Board selectBoard(int boardNo) { // Board 돌아가는건 확정이고 int 하나 받았음
 		
+		/*
 		// 숫자있다고 얘가 아나요.. 어케함? 가져오고싶으면 DB가야함, DB는 누가가요? DAO가 가니까 어떻게해여?
 		// new BoardDAO().selectBoard(conn, boardNo);
 		
@@ -121,6 +138,20 @@ public class BoardService {
 		
 		// SELECT니까 나중에 커넥션 반납
 		JDBCTemplate.close(conn);
+		
+		return board;
+		*/
+		
+		Board board = null;
+		
+		// 마이바티스 버전으로 수정
+		SqlSession session = Template.getSqlSession();
+		
+		if(boardNo > 0) {
+			board = new BoardRepository().selectBoard(session, boardNo);
+		}
+		
+		session.close();
 		
 		return board;
 		

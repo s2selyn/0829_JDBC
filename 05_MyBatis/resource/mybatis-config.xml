@@ -16,6 +16,14 @@
  -->
 <configuration>
 
+	<!-- environments 위에 typeAliases 적어야함, 별칭이 여러개 있을 수 있음 -->
+	<!-- typeAliases : VO / DTO클래스들의 풀클래스명을 별칭으로 사용하기위해 등록하는 영역 -->
+	<typeAliases>
+		<typeAlias type="com.kh.statement.model.vo.Member" alias="member" />
+		<typeAlias type="com.kh.board.model.vo.Board" alias="board" />
+	</typeAliases>
+<!-- ??? 클래스 없는데 별칭 붙이려면 사고남... 얘가 클래스 먼저 찾고 별칭 붙이려고 하기 때문에, 그래서 클래스도 만들고 별칭도 붙이고 어쩌구저쩌구 세팅 다 해서 깃허브 올려야함 -->
+
 	<!-- 구동설정, 환경설정, XML의 모든 요소가 복수형(-s)으로 끝남 -->
 	<!-- environments : MyBatis에서 연동할 DB의 정보들을 등록하는 영역
 		 각각의 DB정보는 environment태그를 이용해서 등록할 수 있음
@@ -101,6 +109,7 @@
 	
 		<!-- 이 안에는 s를 빼버리고 매퍼를 작성하겠지, 여러개의 매퍼가 있을 수 있으니까 mappers로 감싼것임 -->
 		<mapper resource="member-mapper.xml" /><!-- 같은 경로에 있으면 파일명만 적음 -->
+		<mapper resource="board-mapper.xml" /><!-- 등록만 해놓고 xml 파일에 namespace 없으면 와장창남 -->
 	
 	</mappers>
 

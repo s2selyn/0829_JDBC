@@ -85,7 +85,7 @@
 			resultType="com.kh.statement.model.vo.Member"><!-- 이방법은 컬럼명과 필드명을 맞춰뒀다면 마이바티스가 오토매핑을 함
 			이러면 SQL문 한줄, DAO 한줄쓰면 끝, 반복해야 했던 코드 전부를 마이바티스가 대신해줌, 그 작업을 안할수는 없음, 어차피 해야하는데 중복코드 반복을 마이바티스가 대신해줌
 			DAO가 띡 하면 끝, 절차는 사라지지 않는다 없으면 코드가 못돌아 그걸 마이바티스가 대신해주는것, 더 발전을 시킬 수 있음 -->
-	<!-- 헷갈리지 않도록 메소드 이름과 동일하게 식별자(id 속성값), 호출될 때 넘어온 파라미터가 없으므로 그냥 SQL문, 어떤 것으로 돌아갈지(반환) resultMap속성(id)을 적어줌 -->
+<!-- 헷갈리지 않도록 메소드 이름과 동일하게 식별자(id 속성값), 호출될 때 넘어온 파라미터가 없으므로 그냥 SQL문, 어떤 것으로 돌아갈지(반환) resultMap속성(id)을 적어줌 -->
 		SELECT
 		       USERNO<!-- 이 컬럼값을 member의 userNo 필드에 담고싶음 -->
 		     , USERID
@@ -113,5 +113,85 @@
 		<result column="ENROLLDATE" property="enrollDate" />
 		
 	</resultMap>
+	
+	<!-- select 구분을 위해 id 속성(속성값)을 작성함, 밖에있는것과 헷갈리면 안되니까 메소드명을 똑같이(대소문자 구분)
+	속성 두개 더 적어줘야함, 메소드 호출할 때 인자를 전달받음, 코드상으로 넘긴거고 이친구 입장에서는 받아온게 무슨타입인지 모름, 이걸 매개변수로 받아온거니까 parameterType에 적음
+	-->
+	<!-- 자료형은 별칭이 지정되어있음, 공식문서(모든 마이바티스를 쓰는 자바개발자의 공식 매뉴얼)에서 확인가능, String이라고 써도 잘 돌아가고 안써도 돌아감(똑똑하네), 그래도 나와있는걸 잘 지켜주는게 좋다 -->
+	<!-- 많이쓰는거 실무에서 자주 쓰는건 선생님이 알려주실테니 최소한 수업시간에 하는건 다 알아야함 -->
+	<!-- SELECT는 나중에 반환을 어떻게 할 지 반드시 적어줘야함 -->
+	<select id="findById"
+			parameterType="string"
+			resultType="com.kh.statement.model.vo.Member">
+		SELECT
+		       USERNO
+		     , USERID
+		     , USERPWD
+		     , USERNAME
+		     , EMAIL
+		     , ENROLLDATE
+		  FROM
+		       MEMBER
+		 WHERE
+		       USERID = #{userId}
+    <!-- 원래 해야했던 작업을 마이바티스가 대신하도록 위치홀더를 바꿔줌, 아까는 멤버를 받았으니 필드명을 적어줌, 지금은 문자열값 하나만 받았음, 보편적으로는 넘어온 친구 변수명과 똑같이 적음 -->
+    <!-- 왜 보편적으로 라고 설명하는지는 조금이따가 -->
+    <!-- 이부분은 웬만하면 넘어온 변수명과 맞춰주는 편이라고 하셨음, 안 맞춰주고 그냥 맘대로 썼다면? 결과가 잘 나오긴 함, 꼭 맞춰야지만 잘 나오는 건 아님
+    이건 조건이 있음, DAO 넘어가기 전에 넘겨야 할 값이 2개 이상이면 반드시 데이터를 가공해서 어느 하나에 담아서 넘어가야한다고 했음, 꼭 해줘야한다고 하셨음
+    그 이유를 이제 설명할 수 있게 됨, sql 실행할 때 필요한 값이 여러개일 수 있음, 마이바티스를 할 때 넘길 수 있는 인자값이 하나밖에 없음(무슨 SQL문을 쓰든 메소드 호출할 때), 파라미터 받아주는게 하나밖에 없음
+    마이바티스를 쓰면 어쩔 수 없이 메소드를 호출할 때 하나에 담아서 넘겨줘야함
+    DAO는 데이터 가공하는 곳이 아님, 여기 오기 전에 해와야함, 얘는 받아서 넘기는것만 해야함, 무조건 하나로
+    이런것들을 앞에서는 설명할? 설명 하면 하지만 알아듣냐 마냐가 다른문제. 그때는 이렇게 해야합니다 하고 나중에 이걸 사용할 때 요래서 앞에서 그렇게 했습니다 하고 설명하시는 편
+    member 객체는 VO로 담았으니 안에 여러개가 들어있을 수 있음, String은 값이 하나(userId)
+    마이바티스 입장에서는 어차피 하나밖에 못받기 때문에 매개변수 이름으로 안맞추고 아무거나 적어도 넣을 게 String값이 될 수 밖에 없음, 그래서 이걸 알아서(넘어온걸 그냥) 마이바티스가 넣어버린 것, 그냥 넣었는데 운좋게 맞아떨어져서 돌아갔겠지?
+    하지만 사람이 봤을 때 아무거나 적어뒀다면 뭔지 모르니까 맞춰서 적어줌
+    -->
+	</select>
+	
+	<!-- 풀클래스명 사용할 때 오타를 줄이는 방법 : 별칭을 붙여서 짧게 사용할 수 있음, 모르니까 공식문서 가보자, typeAliases -->
+	<!-- 안에서 계속 쓸거니까 config 파일에서 함, 위치 중요함!! -->
+	
+	<!-- 간혹 메소드명과 아이디속성값이 달라질 수 있음, DAO가 오버로딩된 메소드를 가지면 달라질 수 있지만 그런 경우는 잘 없음 -->
+<!-- ??? 속성값 두개 필요함, 넘어오는 매개변수는 Object니까 마이바티스는 뭐인지 알수없음, resultMap/resultType 둘중에 하나는 무조건 적어야함, 맵은 필요할때만 쓰고(강력하긴하지만쓸데없고지금단순해서그냥한번해봄) 지금은 resultType, 원래 풀클래스명 썼지만 지금은 alias 쓰면됨 -->
+	<select id="findByKeyword"
+			parameterType="string"
+			resultType="member">
+		SELECT
+		       USERNO
+		     , USERID
+		     , USERPWD
+		     , USERNAME
+		     , EMAIL
+		     , ENROLLDATE
+		  FROM
+		       MEMBER
+		 WHERE
+		       USERID LIKE '%' || #{keyword} || '%'
+	</select><!-- DAO에서 키워드 넘길때 문자열 합쳐도 되지만 여기서 하는게 낫지 -->
+	
+	<!-- update문 쓸거니까 update태그, 각 update문을 구분하기 위해 id 속성 작성, 파라미터 별칭 안짓고와서 그냥 풀클래스명 작성 -->
+	<update id="update"
+			parameterType="com.kh.statement.model.dto.PasswordDTO">
+		UPDATE
+		       MEMBER
+		   SET
+		       USERPWD = #{newPassword}
+		 WHERE
+		       USERID = #{userId}
+		   AND
+		       USERPWD = #{userPwd}
+	</update><!-- #{DTO의 필드명} -->
+	<!-- #은 pstmt, $은 stmt(보안에 취약) / JDBC랑 마이바티스 둘다 오래된 할아버지 기술, 옛날에 $로 썼음, 유물이 남아있을 수 있음, 보안에 취약하니까 쓰면안됨 -->
+	
+	<!-- 이쯤하면 Window > Show View > Outline 창이 의미가 생기지만 선생님은 별로 안쓰심 -->
+	<delete id="delete"
+			parameterType="member">
+		DELETE
+		       MEMBER
+		 WHERE
+		       USERID = #{userId}
+		   AND
+		       USERPWD = #{userPwd}
+	</delete>
 	
 </mapper>
