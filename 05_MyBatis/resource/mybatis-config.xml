@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<!--
+	XML에서 주석사용하는 방법!
+	이 문서의 형식이 configuration(환경설정)임을 알려줌
+	.dtd == 유효성검사를 해줌
+	문서 전체를 어떤 구조로? 최상위 부모요소(root element)가 configuration만 쓸 수 있음
+	전체 요소를 configuration 태그가 감싸고 있어야함(configration element가 전체를 감싸고 있어야함)
+	얘가 틀리면 바로 알려줌(프로그램 안돌려봐도 시작하기전에)
+	=> 최상위 부모요소가 반드시 configuration element
+	자식 요소로 쓸 수 있는 요소도 정해져있음, ctrl + space로 확인 가능
+	우리는 문서 따라서 갈 것임
+	configuration 다음은 environments가 감싸고 있음(transactionManager, dataSource가 중요)
+ -->
+<configuration>
+
+	<!-- 구동설정, 환경설정, XML의 모든 요소가 복수형(-s)으로 끝남 -->
+	<!-- environments : MyBatis에서 연동할 DB의 정보들을 등록하는 영역
+		 각각의 DB정보는 environment태그를 이용해서 등록할 수 있음
+		 => 꼭! default속성을 이용해서 여러개의 정보중 어떤 DB를 기본으로 사용할 것인지 지정해야함! 꼭! 꼭!
+		 
+	??? 9:49 JDBC에서 불편한 코드를 사용하기 위해서 마이바티스를 사용함
+	
+	??? 10:01 DB 여러개를 미리 써놓을 수 있음, 할때마다 고치려면 귀찮으니까
+	아까 environments 쓰고 뭐 안썼음? 디폴트, DB 여러개 등록할 수 있는데 여러개중에 어떤거 사용할건지 디폴트 속성으로 지정해줘라
+	-->
+	<environments default="development">
+	
+		<!-- 실제 DB에 대한 정보는 이 안에 environment 태그를 만들어줌 -->
+		<!-- 이건 여러개 쓸 수 있음, 각각 구분되어야지 안그러면 못씀, id라는 속성이 있음 -->
+		<!-- 우리는 이거 하나만 쓸거니까 environments에 디폴트 추가 -->
+		<environment id="development">
+		<!-- The content of element type "environment" is incomplete, it must match "(transactionManager,dataSource)".
+		이거 두개는 안쓰면 사용 못함 꼭 써야함 -->
+		
+			<!-- * transactionManager : type이 필수속성 JDBC와 MANAGED 중 하나를 선택할 수 있음
+				 - JDBC : 트랜잭션을 개발자가 직접관리하겠다. (수동 commit)
+				 - MANAGED : 트랜잭션에 대해서 개발자가 아무런 영향도 끼치지 않겠다. (자동 commit)
+				 둘다 해봐야지, 어떻게 되는건지, JDBC 프로젝트니까 이거 먼저 써보자
+			-->
+			<transactionManager type="JDBC"/>
+			
+			<!-- 프레임워크를 사용하기 위해서는 틀에 맞춰서 모든 개발자가 설정을 해야함, 업무의 통일성을 갖게됨
+			모든 개발자가 똑같은 생각을 가지는 게 목적
+			같은 업무를 가진 개발자는 모두 똑같은 생각을 가지고 있어야함, 개발의 기본은 협업이니까
+			다똑같은생각작업방식코드쓰기해야함, 세부구현(비즈니스)로직은 다를수있겠지만, 틀 구조 기술사용시 통일성은 똑같이
+			-->
+			
+			<!--
+				* dataSource의 type속성의 값으로 POOLED와 UNPOOLED 중 하나를 선택할 수 있음(ConnectionPool)
+				커넥션 풀은? 커넥션은 DB와의 연결 정보를 저장하고 있는 객체
+				ConnectionPool : Connection객체를 담아두는 영역, 한 번 생성된 Connection을 재사용
+				
+				POOLED => ConnectionPool 쓸래요
+				UNPOOLED => ConnectionPool 안 쓸래요
+				계획하기 위해서 자원소모가 많이 들어감, 드라이버 맞는지, 아이피, 사용자계정, 패스워드 맞는지 확인
+				접속목표를 세우는게 자원이 많이 드는 문제
+				unpooled는 안쓰고 필요할때마다 (요청이 올때마다) 커넥션을 새롭게 만들어서 사용한다는 뜻, 누가 이거 할래요하면 커넥션을 만들어서 시간이 걸림
+				pooled는 풀링해둠, 커넥션을 10개, 20개 미리 만들어둬서 누가 접속요청을 했을 때 내가 만들어놓은 pool에 있는 것을 주고 다 썼다면 받아옴
+				pooled 장점 커넥션을 만든느데 자원이 들지 않아서 요청을 보낼 때 마다 빠르게 연결시켜 줄 수 있음
+				pooled 단점 만들어놓고 있기 때문에 누군가 다 사용하고 있으면 더이상 만들어내지 않고 사용이 끝난 것을 기다리게 되니까 접속을 기다리게 될 수 있음
+				간단한거 만들때는 unpooled, 요청이 사용자가 많음, DB에 많이 가야하면 pooled가 적합할수도
+				일반적으로 pooled, 우리는 별 차이 없겠지, 둘 다 써봐야하지만 unpooled 먼저
+				
+				DataSource객체의 필드에 값을 set하기 위해서는 setter메소드가 호출해야 하는데,
+				XML파일상에서는 setter메소드를 호출해서 값을 대입하기 위해 property라는 요소를 사용함
+				DataSource객체.setname속성값("value속성값");
+			-->
+			<dataSource type="UNPOOLED">
+				<!-- 솔직히 지금 두개 차이 느낄 수 없음, 둘다 써보자, 이거먼저 써보고 나중에 딴거 써보고
+				커넥션 만들어주는 친구인데 중요한게 많이 빠져있음, 커넥션 만들어주려면 뭐가 필요함? 변수세팅, 드라이버세팅, 커넥션 생성 해야함
+				??? 데이터소스 요소 안에는 property도 속성임
+				데이터소스라는 객체를 만드는데 이 객체를 만들었을 때 얘가 가지는 필드가 있음(driver, url, username, password)
+				이 필드의 값을 set 하고 싶은것임, setter를 써서 값을 셋하는데
+				데이터소스객체의 필드에 셋하기 위해서 property라는 태그를 사용
+				네임 소스에는 필드명을 작성, 밸류에는 필드에 넣고싶은 필드값(밸류)를 작성
+				드라이버 필드는 우리가 쓰는 oracle.jdbc.driver.OracleDriver (패키지경로부터클래스명까지)
+				url은 우리랑 좀 다르지만 접속할 url
+				username은 db에 접속할 사용자명
+				password는 비밀번호
+				??? JDBC는 프로퍼티 파일에서 읽어왔는데 마이바티스는 여기에서 작성해서 사용
+				-->
+				<!-- DataSource.setDriver("oracle.jdbc.driver.OracleDriver")
+				??? 10:24 무슨 방법? -->
+				<property name="driver" value="oracle.jdbc.driver.OracleDriver" />
+				<property name="url" value="jdbc:oracle:thin:@115.90.212.20:10000:XE" />
+				<property name="username" value="CJ18" />
+				<property name="password" value="CJ181234" />
+			
+			</dataSource>
+
+		</environment>
+	
+	</environments>
+	
+	<!-- 여기서 xml 매퍼파일을 등록해주는 과정이 필요함, 위치가 중요함 위치대로 적어야함, environments 아래에 -->
+	<!-- mappers : 실행할 SQL문을 기록해둔 mapper파일을 등록하는 영역 -->
+	<mappers>
+	
+		<!-- 이 안에는 s를 빼버리고 매퍼를 작성하겠지, 여러개의 매퍼가 있을 수 있으니까 mappers로 감싼것임 -->
+		<mapper resource="member-mapper.xml" /><!-- 같은 경로에 있으면 파일명만 적음 -->
+	
+	</mappers>
+
+</configuration>
+<!-- JDBCTemplate 클래스를 만들어서 넣어줌? 그 절차를 마이바티스가 대신해줌, 커넥션을 만들어주는 과정 자체를 마이바티스가 대신해주는데, 중요한것은 커넥션의 역할을 누가 대신해주냐? 앞으로는 커넥션의 역할을 SqlSession이라는 친구가 대신해줄것임, Connection은 SqlSession이 대신함
+똑같이 템플릿 클래스를 만들건데, 커넥션을 받아오는 게 아니라 sql세션을 받아오겠다
+-->
+<!-- 여기서는 코드와 파라미터 설정까지 맡겨두었음, 결과 매핑 시키러 MemberService 거쳐서 member-mapper로 -->

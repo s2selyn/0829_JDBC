@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 뭐 써야하지? 공식문서 보러감 -->
+<!-- 첫줄은 xml 관련 인코딩 설정, DOCTYPE mapper는 매퍼파일이라는 뜻이고, .dtd는 유효성 검사해주는 코드, 이건 고대로 쓰는게 고정 -->
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 11:13 아까는 최상위요소 언급, 얘의 최상위 요소는 mapper여야함, 전체가 mapper로 감싸져있어야함
+마이바티스에서 쓰는 매퍼 xml은 기본적으로 이렇게 생김, 공식문서에 설명 잘 나와있음 -->
+<mapper namespace="memberMapper"><!-- 여기에 속성을 하나 넣어서 다른 매퍼 파일과 구분 -->
+<!-- namespace : 각 mapper의 고유한 별칭 다른 매퍼파일과 중복되면 안됨
+다른 매퍼랑 겹치면 안됨, 충돌남, 구분하기 쉽게 파일명 따라 memberMapper
+-->
+	<!-- 경우에 따라 작성방식이 달라짐, 지금은 insert 쓰러옴, insert sql을 하나의 태그로 감싸줌
+	 	* DML일 경우(각각의 이름을 딴 태그가 있음)(나중에 정수로 돌아감, 몇행인지)
+	 	<insert id="각 SQL문의 식별자">
+	 		쿼리문(내가 쓰고 싶은 쿼리문은 이 컨텐트 영역에 작성)
+	 	</insert> 이 태그를 여러개 적을 수 있지만 각 insert틀 식별할 무언가가 필요함, 그건 id 속성
+	 	
+	 	<update></update>
+	 	
+	 	<delete></delete>
+	 	
+	 	* SELECT일 경우(뭘로 돌아갈 지 알 수 없음, 지금은 멤버들이 담긴 리스트지만 그냥 멤버로 갈 수도 있고, count를 했다면 정수가 돌아감, 나중에 돌아갈 형태가 전부 다름)
+	 	이 안에 여러개 있을 수 있는 select를 식별할 무언가가 있어야함, id, 이 xml안에서는 겹치면 안됨, 다른 xml이면 상관없음
+	 	<select id="각SQL문의 식별자" parameterType="SQL문을 실행할 때 필요한 자바타입"
+	 	resultType="조회결과를 반환하는 자바타입" 또는
+	 	resultMap="조회결과를 반환할 resultMap의 id속성값">
+	 		쿼리문
+	 	</select>
+	 	
+	 	=> parameterType은 전달받을 값이 없다면 생략이 가능함(필수속성이 아님)
+	 	==> count(*) => 정수 / 중복체크 => 문자열
+	 	=> SELECT문의 경우 반드시 어떤 형태로 반환할지를 속성으로 명시해야함(두개중에 하나는 반드시 적어야함, resultType/resultMap
+	 	Map이 더 귀찮으니까 먼저 써보자>
+	 	
+	 	==> 그동안 pstmt 객체를 이용해서 ?를 썼지만,
+	 	앞으로 위치홀더 대신 해당 SQL문에 전달된 객체로부터 값을 꺼내서 사용! => (우리가 실질적으로 쓰는 건 아닌데) 내부적으로는 getter호출!
+	 	getter호출방법 == #{필드명 또는 변수명 또는 map의 키값}
+	-->
+	
+	<insert id="save"
+	parameterType="com.kh.statement.model.vo.Member"><!-- id는 안헷갈리려면 메소드명 똑같이 적는것이 좋겠다, 안에는 그냥 SQL문, parameterType에는 넘어온 객체의 풀클래스명 -->
+		INSERT
+		  INTO
+		       MEMBER
+		VALUES
+		       (
+		       SEQ_USERNO.NEXTVAL
+		     , #{userId}<!-- 전달받은 멤버객체의 필드값이 들어가야함, #, 중괄호 열고닫고, 내가 게터로 호출하고 싶은 필드명을 적음, 이러면 알아서 필드명에 해당하는 필드를 찾아서 게터메소드를 호출해서 값을 뽑아다가 여기에 대입을 해줌 -->
+		     , #{userPwd}
+		     , #{userName}
+		     , #{email}
+		     , SYSDATE
+		       )
+	</insert>
+	
+	<!-- 
+		* resultMap : 마이바티스에서 가장 중요하고 강력한 요소
+					  ResultSet으로부터 조회한 컬럼의 값을 하나씩 뽑아서
+					  우리가 만든 VO객체에 각 필드에 담는 JDBC코드를 줄여주는 역할 수행(지금 VO가 문제가 있어서 문제가 생길것임, 확인하고 수정하도록하자)
+		이 작업을 줄여준다 ↓
+		while(rset.next()) {
+			Member member = new Member();
+			member.setUserNo(rset.getInt("USERNO"));
+			member.setUserId(rset.getString("USERID"));
+			
+			members.add(member);
+		}
+		
+		mapper 안에 resultMap도 여러개 있을 수 있으니 식별할 id 속성,
+		어떤 타입으로 매핑하고 싶은지 알아야 매핑해주니까 속성 하나 더 필요함
+		<resultMap id="식별자" type="매핑하고자하는 자바객체의 타입(풀클래스명)">
+		
+			어떤컬럼의 값을 뽑아서 어떤 필드에 담겠다를 여기 써야함
+			<result column="조회된 결과를 뽑고자하는 컬럼명" property="해당 결과를 매핑할 필드명" />
+			
+			예시)
+			<result column="USERNO" property="userNo" />
+			
+		</resultMap>
+	-->
+	
+	<!-- resultMap="memberResultSet" 이걸로 했던 작업 지금은 좀 낭비임, resultType을 수정함 -->
+	<select id="findAll"
+			resultType="com.kh.statement.model.vo.Member"><!-- 이방법은 컬럼명과 필드명을 맞춰뒀다면 마이바티스가 오토매핑을 함
+			이러면 SQL문 한줄, DAO 한줄쓰면 끝, 반복해야 했던 코드 전부를 마이바티스가 대신해줌, 그 작업을 안할수는 없음, 어차피 해야하는데 중복코드 반복을 마이바티스가 대신해줌
+			DAO가 띡 하면 끝, 절차는 사라지지 않는다 없으면 코드가 못돌아 그걸 마이바티스가 대신해주는것, 더 발전을 시킬 수 있음 -->
+	<!-- 헷갈리지 않도록 메소드 이름과 동일하게 식별자(id 속성값), 호출될 때 넘어온 파라미터가 없으므로 그냥 SQL문, 어떤 것으로 돌아갈지(반환) resultMap속성(id)을 적어줌 -->
+		SELECT
+		       USERNO<!-- 이 컬럼값을 member의 userNo 필드에 담고싶음 -->
+		     , USERID
+		     , USERPWD
+		     , USERNAME
+		     , EMAIL
+		     , ENROLLDATE
+		  FROM
+		       MEMBER
+		 ORDER
+		    BY
+		       ENROLLDATE DESC
+	</select>
+	
+	<!-- 어떤 컬럼에서 값을 뽑을지는 column에 작성, 뽑은 값을 어느 필드에 넣을건지는 property에 작성, 이 코드가 while부분을 대체함 -->
+	<!-- 재활용이 되고 가시적이됨(한눈에 알아보기 쉬움), resultMap의 진정한 장점은 이게 아니긴하지만 일단 한번 써봄 -->
+	<resultMap id="memberResultSet"
+			   type="com.kh.statement.model.vo.Member">
+	
+		<result column="USERNO" property="userNo" />
+		<result column="USERID" property="userId" />
+		<result column="USERPWD" property="userPwd" />
+		<result column="USERNAME" property="userName" />
+		<result column="EMAIL" property="email" />
+		<result column="ENROLLDATE" property="enrollDate" />
+		
+	</resultMap>
+	
+</mapper>

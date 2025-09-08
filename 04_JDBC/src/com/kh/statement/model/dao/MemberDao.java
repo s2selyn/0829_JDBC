@@ -16,7 +16,6 @@ import com.kh.common.JDBCTemplate;
 import com.kh.statement.model.dto.PasswordDTO;
 import com.kh.statement.model.vo.Member;
 
-
 public class MemberDao {
 	
 	private Properties prop = new Properties();
