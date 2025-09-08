@@ -4,6 +4,12 @@
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="boardMapper">
 
+	<!--
+		이번주의 실습 겸 숙제
+		
+		그동안 저번주 내내했던 모든 JDBC프로젝트 결과물을 MyBatis버전으로 변경하기(나만의, EMPLOYEE, Plant) 
+	-->
+
 	<sql id="boardColumn">
 		SELECT
 		       BOARD_NO boardNo

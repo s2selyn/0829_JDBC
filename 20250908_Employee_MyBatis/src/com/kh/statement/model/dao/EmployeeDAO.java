@@ -1,109 +1,22 @@
 package com.kh.statement.model.dao;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+
+import org.apache.ibatis.session.SqlSession;
 
 import com.kh.common.JDBCTemplate;
 import com.kh.statement.model.vo.Employee;
 
 public class EmployeeDAO {
 	
-	// 얘는 서비스가 불러서 나타남
-	// DB랑 연결해서 SQL문 실행하고 결과 받아올거임
-	// ResultSet 오면 가공해서 서비스에 넘겨줌(SELECT)
-	// Updated Rows 오면 그냥 정수형 변수에 담아서 넘겨줌(DML)
-	
-	// SQL문 파일에 빼서 한댔음, 매번 메소드마다 읽어올건데 한번에 읽어오게 필드로 두고싶음
-	// 필드 아니고 기본생성자?
-	// 프로퍼티 있어야 하고, 거기서 읽어옴??
-	// 프로퍼티 객체 생성하고, 그 객체 이용해서 읽어와야함
-	// 오늘 한건데 왜 생각이 안나죠??
-	
-	// 원래 절차는, 프로퍼티 생성 --> 프로퍼티 참조해서 메소드 호출 --> 호출 시 매개변수로 스트림 생성(읽어올 파일과 연결)해서 전달
-	// 이걸 메소드마다 해야함
-	
-	// 프로퍼티 생성을 필드로 만들어두고
-	private Properties prop = new Properties();
-	
-	// DAO 기본생성자에 XML(SQL 넣어둔것) 읽어오는걸 넣어줌
-	// 그러면 서비스가 부를때마다 DAO가 생성됨(서비스에 DAO 필드로 안뒀음, 이건 커넥션 매번 생성하고 반납하는 시스템으로 해야하니까)
-	public EmployeeDAO() {
+	public List<Employee> findAll(SqlSession session) {
 		
-		try {
-			prop.loadFromXML(new FileInputStream("resources/member-mapper.xml"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
-	public List<Employee> findAll(Connection conn) {
-		
-		// 디비랑 해야할일들
-		// SQL문 실행
-		
-		// 0번!! 변수준비!! pstmt, 돌려줄 결과, 보낼 sql문
-		// DB에서 받을 결과
-		PreparedStatement pstmt = null;
-		
-		ResultSet rset = null;
-		
-		// 나중에 보낼 객체
-		List<Employee> employees = new ArrayList();
-		
-		// 커넥션은 받아옴 --> 매개변수 작성해야함
-		
-		// SQL문 준비 --> 이것도 파일에 빼서 한댔음
-		// prop 이용해서 빼오면된다
-		String sql = prop.getProperty("findAll");
-		
-		try {
-			
-			// pstmt 완성
-			pstmt = conn.prepareStatement(sql);
-			
-			// pstmt 실행 아,, 미리 변수 선언 안했죠? ㅎㅎ
-			rset = pstmt.executeQuery();
-			// 결과 받아오기
-			
-			// 받아서 가공 --> 까야함
-			while(rset.next()) {
-				
-				// 커서 내려서 결과 있으면
-				// 앗 몇개있을지 모름 있는만큼 반복이니까 if말고 while
-				
-				// 한 행을 한 객체에 담음
-				// 여러 행이 여러 객체에 담김, 여러 객체를 ArrayList에 하나씩 담음, 하나의 ArrayList를 보냄
-				Employee employee = new Employee(rset.getString("EMP_ID")
-											   , rset.getString("EMP_NAME")
-											   , rset.getInt("SALARY")
-											   , rset.getString("DEPT_TITLE")
-											   , rset.getString("JOB_NAME"));
-				
-				// 가공해서 보내줄것에 넣어주기
-				employees.add(employee);
-				
-			}
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally { // 다 했으면 자원 반납 해야해요
-			
-			JDBCTemplate.close(rset);
-			JDBCTemplate.close(pstmt);
-			// 커넥션은 여기서 말고 서비스에서
-			
-		}
-		
-		// 넘겨주기
-		return employees;
+		return session.selectList("employeeMapper.findAll");
 		
 	}
 	
